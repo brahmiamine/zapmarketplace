@@ -1,0 +1,32 @@
+---
+- name: Deploy ZapMarketplace applications
+  hosts: server
+  remote_user: debian  # Specify the user for remote operations
+
+  tasks:
+    - name: Update the repository
+      git:
+        repo: 'https://github.com/mouhamedaminebrahmi/zapmarketplace'
+        dest: /home/debian/zapmarketplace/
+        update: yes
+        force: yes
+
+    - name: Delete all PM2 processes
+      command: pm2 delete all
+      args:
+        chdir: /home/debian/zapmarketplace/
+
+    - name: Start backend application
+      command: pm2 start npm --name backend -- run dev
+      args:
+        chdir: /home/debian/zapmarketplace/backend/
+
+    - name: Start admin application
+      command: pm2 start npm --name admin -- run dev
+      args:
+        chdir: /home/debian/zapmarketplace/admin/
+
+    - name: Start store application
+      command: pm2 start npm --name store -- run dev
+      args:
+        chdir: /home/debian/zapmarketplace/store/

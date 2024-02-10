@@ -1,0 +1,25 @@
+- name: Setup Nginx for serving multiple apps
+  hosts: server
+  become: yes
+
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: latest
+
+    - name: Upload Nginx configuration
+      template:
+        src: ../template/nginx.conf.j2
+        dest: /etc/nginx/sites-available/default
+
+    - name: Ensure Nginx is running and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Reload Nginx
+      systemd:
+        name: nginx
+        state: reloaded

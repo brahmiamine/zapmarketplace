@@ -1,0 +1,23 @@
+- name: Clone Repositories on EC2 instance
+  hosts: server
+  become: no  # Ensure you don't use sudo for git operations
+  remote_user: admin
+  tasks:
+    - name: Add GitHub SSH key to known hosts
+      known_hosts:
+        path: "/home/admin/.ssh/known_hosts"
+        name: "github.com"
+        key: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+        state: present
+
+    - name: Install Git
+      become: yes
+      package:
+        name: git
+        state: present
+   
+    - name: Clone zapmarketplace repository
+      git:
+        repo: 'git@github.com:mouhamedaminebrahmi/zapmarketplace.git'
+        dest: "/home/admin/zapmarketplace"
+        update: no

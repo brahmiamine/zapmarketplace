@@ -1,0 +1,27 @@
+version: "3.0"
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "5055:5055"
+
+  store:
+    build: ./store
+    container_name: store
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://backend:5055/api
+      - NEXT_PUBLIC_API_SOCKET_URL=http://backend:5055
+      - MONGO_URI=mongodb+srv://brahmi:rtfgcv@clusterudemyproject.9o9r0.mongodb.net/zapmarketplace?retryWrites=true&w=majority
+
+  admin:
+    build: ./admin
+    container_name: admin
+    ports:
+      - "4100:4100"
+    depends_on:
+      - backend

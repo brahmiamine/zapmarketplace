@@ -1,0 +1,59 @@
+---
+- name: Install and Configure MongoDB 7.0.2 on Debian 11
+  hosts: server
+  become: yes
+  vars:
+    mongodb_user: "amin"
+    mongodb_password: "amin"
+    mongodb_database: "zapmarketplace"
+
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install necessary dependencies
+      apt:
+        name: gnupg
+        state: present
+
+    - name: Import MongoDB 7.0.2 public GPG key
+      apt_key:
+        url: https://www.mongodb.org/static/pgp/server-7.0.asc
+        state: present
+
+    - name: Add MongoDB 7.0.2 repository
+      apt_repository:
+        repo: deb http://repo.mongodb.org/apt/debian bullseye/mongodb-org/7.0 main
+        state: present
+
+    - name: Install MongoDB packages
+      apt:
+        name: mongodb-org
+        update_cache: yes
+
+
+    - name: Start and enable MongoDB service
+      systemd:
+        name: mongod
+        state: started
+        enabled: yes
+
+    - name: Wait for MongoDB to start
+      wait_for:
+        port: 27017
+        delay: 5
+
+    - name: Create MongoDB user
+      mongodb_user:
+        login_host: localhost
+        login_user: admin
+        login_password: admin_password
+        database: "{{ mongodb_database }}"
+        name: "{{ mongodb_user }}"
+        password: "{{ mongodb_password }}"
+        roles:
+          - db: "{{ mongodb_database }}"
+            role: readWrite
+        state: present

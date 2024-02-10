@@ -1,0 +1,20 @@
+- name: Setup key ssh
+  hosts: server
+  become: yes  # Enables privilege escalation, equivalent to using 'sudo' before commands
+  tasks:
+    - name: Update all packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Generate SSH key pair
+      openssh_keypair:
+        path: /home/admin/.ssh/id_rsa
+        owner: admin
+        group: admin
+      register: ssh_key
+
+    - name: Display the generated public key (you might want to log or capture this key for adding to Git)
+      debug:
+        var: ssh_key.public_key
+

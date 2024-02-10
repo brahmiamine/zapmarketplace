@@ -1,0 +1,7 @@
+- name: Test Connection
+  hosts: server
+  gather_facts: False
+
+  tasks:
+    - name: Ping server
+      ping:

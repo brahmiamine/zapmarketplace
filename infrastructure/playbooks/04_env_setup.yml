@@ -1,0 +1,65 @@
+- name: Clone Repositories on EC2 instance
+  hosts: server
+  become: no  # Ensure you don't use sudo for git operations
+  remote_user: admin
+  tasks:
+
+    - name: Create .env for zapmarketplace project
+      template:
+        src: "../template/.env.backend.j2"
+        dest: "/home/admin/zapmarketplace/backend/.env"
+        mode: '0600'
+      vars:
+        PORT: 5055
+        MONGO_URI: 'mongodb+srv://brahmi:rtfgcv@clusterudemyproject.9o9r0.mongodb.net/zapmarketplace?retryWrites=true&w=majority'
+        JWT_SECRET: 'alamsfdfsdsdfsdfsdfsdfsdfsdrafdar!@#$0fddlfjdfdfdssfds'
+        JWT_SECRET_FOR_VERIFY: 'lfjfjasjfsdfsfr09ri09wfsdfsdfrilfdjdj'
+
+        SERVICE: gmail
+        EMAIL_USER: ybrahmi07@gmail.com
+        EMAIL_PASS: iigk ytze abyx qiok
+        HOST: smtp.gmail.com
+        EMAIL_PORT: 465
+
+        STRIPE_KEY: sk_test_51OHAFHHDrPjuXU4ofRN2elV29htwsfDpcUzTJUBQX2LUba75wkjVkJmft0Ue7iUFKNmFdRoctmXqGIQuykjVcvvB00bQ5xonnI
+        MAX_AMOUNT: 5000.0
+        MIN_AMOUNT : 10.0
+        AMOUNT_STEP : 5.0
+        CURRENCY: usd
+        STRIPE_PAYMENT_DESCRIPTION: "This is ZapMarketplace payment with Stripe!"
+
+        STORE_URL: http://localhost:3000
+        ADMIN_URL: http://localhost:4001
+
+    - name: Create .env for zapmarketplace project
+      template:
+        src: "../template/.env.admin.j2"
+        dest: "/home/admin/zapmarketplace/admin/.env"
+        mode: '0600'
+      vars:
+        VITE_APP_API_BASE_URL: http://localhost:5055/api
+        VITE_APP_API_SOCKET_URL: http://localhost:5055
+        VITE_APP_STORE_DOMAIN: http://localhost:3000
+
+        VITE_APP_CLOUD_NAME: dapzqelui
+        VITE_APP_CLOUDINARY_API_KEY: 845272895599166
+        VITE_APP_CLOUDINARY_API_SECRET: N_yilzXoKxYNdXGT_PMNEhaWIuw
+        VITE_APP_CLOUDINARY_UPLOAD_PRESET: hopvsqxg
+        VITE_APP_CLOUDINARY_URL: https://api.cloudinary.com/v1_1/dapzqelui/image/upload
+
+    - name: Create .env for zapmarketplace project
+      template:
+        src: "../template/.env.store.j2"
+        dest: "/home/admin/zapmarketplace/store/.env"
+        mode: '0600'
+      vars:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:5055/api
+        NEXT_PUBLIC_API_SOCKET_URL: http://localhost:5055
+        NEXT_PUBLIC_STORE_DOMAIN: http://localhost:3000/
+
+        NEXT_PUBLIC_CLOUDINARY_URL: https://api.cloudinary.com/v1_1/dapzqelui/image/upload
+        NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: hopvsqxg
+
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: 747945671191-g6csbl01qmajt207i00e0vaqvc91347u.apps.googleusercontent.com
+
+        NEXT_PUBLIC_STRIPE_KEY: pk_test_51OHAFHHDrPjuXU4otWqPzJnLCEz5189rqZ4f2wTM9spdFizFBa1I5gIarUqkz9ESS4fuB527CYy7w7SQwal63njO00XhcS3jHd

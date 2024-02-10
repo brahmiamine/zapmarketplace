@@ -1,0 +1,34 @@
+---
+- name: Install Node.js on Debian
+  hosts: server
+  become: yes  # Ensures Ansible has necessary permissions to install packages
+  vars:
+    project_paths:
+      - /home/admin/zapmarketplace/backend
+      - /home/admin/zapmarketplace/store
+      - /home/admin/zapmarketplace/admin
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600  # Cache is valid for 1 hour
+
+    - name: Install Node.js and npm
+      apt:
+        name: 
+          - nodejs
+          - npm
+        state: present
+
+    - name: Ensure npm is installed
+      apt:
+        name: npm
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Run npm install in project directories
+      command:
+        cmd: npm install
+        chdir: "{{ item }}"
+      with_items: "{{ project_paths }}"
