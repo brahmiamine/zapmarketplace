@@ -38,7 +38,6 @@ const Dashboard = ({ title, description, children }) => {
       limit: 8,
     })
       .then((res) => {
-        console.log(res);
         setData(res);
         setLoading(false);
       })

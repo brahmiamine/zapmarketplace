@@ -52,7 +52,6 @@ const Checkout = () => {
   const { showingTranslateValue } = useUtilsFunction();
   const { data: storeSetting } = useAsync(SettingServices.getStoreSetting);
   const { data, loading } = useAsync(DeliveryServices.getAllDelivery);
-
   return (
     <>
       <Layout title="Checkout" description="this is checkout page">

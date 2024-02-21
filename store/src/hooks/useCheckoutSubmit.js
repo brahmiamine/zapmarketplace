@@ -5,6 +5,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useCart } from "react-use-cart";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import axios from "axios";
 
 //internal import
 import useAsync from "@hooks/useAsync";
@@ -14,12 +15,15 @@ import CouponServices from "@services/CouponServices";
 import { notifyError, notifySuccess } from "@utils/toast";
 import SettingServices from "@services/SettingServices";
 import NotificationServices from "@services/NotificaitonServices";
+import { handleExternalObject } from "@utils/functionUtils";
 
 const useCheckoutSubmit = () => {
   const {
     state: { userInfo, shippingAddress },
     dispatch,
   } = useContext(UserContext);
+  //console.log(userInfo);
+  const userId = userInfo?._id;
 
   const [error, setError] = useState("");
   const [total, setTotal] = useState("");
@@ -37,6 +41,8 @@ const useCheckoutSubmit = () => {
   const elements = useElements();
   const couponRef = useRef("");
   const { isEmpty, emptyCart, items, cartTotal } = useCart();
+  const { data: storeSetting } = useAsync(SettingServices.getStoreSetting);
+  // console.log(storeSetting);
 
   const {
     register,
@@ -74,6 +80,20 @@ const useCheckoutSubmit = () => {
       setMinimumAmount(coupon.minimumAmount);
     }
   }, [isCouponApplied]);
+
+  const handleSaveOrderExternal = async (orderToExternal) => {
+    try {
+      // Await the result of the axios.post to properly catch any errors.
+      const result = await axios.post(storeSetting.external_integration_api, orderToExternal);
+      // If the request is successful, you can process the result here.
+      console.log(result);
+    } catch (error) {
+      // Log or handle the error as needed without blocking the UI
+      console.error("Error processing order:", error);
+      // You might want to notify the user of the error in a non-blocking way here.
+      // For example, displaying a toast notification, logging the error, or any other passive error handling strategy.
+    }
+  };
 
   //remove coupon if total value less then minimum amount of coupon
   useEffect(() => {
@@ -185,9 +205,14 @@ const useCheckoutSubmit = () => {
       if (data.paymentMethod === "Cash") {
         const groupedItems = groupByCode(orderInfo.cart);
         let res = null;
+
         if (Object.keys(groupedItems).length === 1 && groupedItems["noCode"]) {
           // No code found in items, submit order once
+          const newOrder = handleExternalObject(orderInfo, userId);
           res = await OrderServices.addOrder(orderInfo);
+          if (storeSetting.external_integration_status) {
+            handleSaveOrderExternal(newOrder);
+          }
         } else {
           // Loop over each group and submit an order for each
           for (const code in groupedItems) {
@@ -199,10 +224,13 @@ const useCheckoutSubmit = () => {
               total: calculateTotal(groupedItems[code]),
             };
             //console.log(modifiedOrderInfo);
+            const newOrder = handleExternalObject(modifiedOrderInfo, userId);
             res = await OrderServices.addOrder(modifiedOrderInfo);
+            if (storeSetting.external_integration_status) {
+              handleSaveOrderExternal(newOrder);
+            }
           }
         }
-
         // notification info
         const notificationInfo = {
           orderId: res._id,
