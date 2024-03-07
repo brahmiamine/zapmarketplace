@@ -51,6 +51,7 @@ module.exports = withPWA({
     domains: [
       "localhost",
       "api.zapmarketplace.online",
+      "api.whyes.tn",
       "images.unsplash.com",
       "img.icons8.com",
       "i.ibb.co",
